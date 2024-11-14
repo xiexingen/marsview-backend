@@ -9,8 +9,8 @@ const SERVER_HOST = 'http://localhost';
 const SERVER_PORT = 5000;
 const DATABASE_HOST = 'localhost';
 const DATABASE_PORT = 3306;
-const DATABASE_USER = '';
-const DATABASE_PASSWORD = '';
+const DATABASE_USER = 'root';
+const DATABASE_PASSWORD = 'Abcd1234';
 const DATABASE_NAME = 'marsview';
 
 /**
