@@ -1,6 +1,7 @@
 package com.marsview.controller;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,6 +13,9 @@ import com.marsview.domain.Users;
 import com.marsview.dto.ProjectsDto;
 import com.marsview.service.ProjectsService;
 import com.marsview.util.SessionUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.BeanUtils;
@@ -32,31 +36,39 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("api/project")
+@Tag(name = "项目管理")
 public class ProjectController extends BasicController {
 
     @Autowired
     private ProjectsService projectsService;
 
-
     /**
      * 分页获取项目列表
      *
-     * @param response
-     * @param type
-     * @param pageNum
-     * @param pageSize
-     * @param keyword
+     * @param request  HTTP 请求对象
+     * @param response HTTP 响应对象
+     * @param type     项目类型
+     * @param pageNum  当前页码
+     * @param pageSize 每页大小
+     * @param keyword  关键词
+     * @return 项目列表响应
      */
     @GetMapping("list")
-    public ResultResponse list(HttpServletRequest request, HttpServletResponse response, int type, int pageNum, int pageSize, String keyword) {
+    @Operation(summary = "分页获取项目列表")
+    public ResultResponse list(
+            HttpServletRequest request,
+            @Parameter(description = "项目类型") @RequestParam int type,
+            @Parameter(description = "当前页码") @RequestParam int pageNum,
+            @Parameter(description = "每页大小") @RequestParam int pageSize,
+            @Parameter(description = "关键词") @RequestParam(required = false) String keyword) {
         Users users = SessionUtils.getUser(request);
-        QueryWrapper<Projects> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id", users.getId());
-        if (StringUtils.hasText(keyword)) {
-            queryWrapper.like("name", keyword);
+        LambdaQueryWrapper<Projects> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Projects::getUserId, users.getId());
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(keyword)) {
+            queryWrapper.like(Projects::getName, keyword);
         }
         if (type != 0) {
-            queryWrapper.eq("is_public", type);
+            queryWrapper.eq(Projects::getIsPublic, type);
         }
 
         Page<Projects> page = new Page<>(pageNum, pageSize);
@@ -85,50 +97,52 @@ public class ProjectController extends BasicController {
     /**
      * 创建项目
      *
-     * @param request
-     * @param projectsDto
+     * @param request    HTTP 请求对象
+     * @param projects 项目 DTO 对象
+     * @return 创建项目响应
      */
     @PostMapping("create")
-    public ResultResponse create(HttpServletRequest request, @RequestBody JSONObject projectsDto) {
+    @Operation(summary = "创建项目")
+    public ResultResponse create(
+            HttpServletRequest request,
+            @Parameter(description = "项目 DTO 对象") @RequestBody Projects projects) {
         Users users = SessionUtils.getUser(request);
-        Projects projects = new Projects();
         projects.setCreatedAt(new Date());
         projects.setUserId(users.getId());
         projects.setUserName(users.getUserName());
 
-        projects.setBreadcrumb(projectsDto.getBoolean("breadcrumb") ? 1 : 0);
-        projects.setFooter(projectsDto.getBoolean("footer") ? 1 : 0);
-        projects.setIsPublic(projectsDto.getInteger("is_public"));
-        projects.setLayout(projectsDto.getInteger("layout"));
-        projects.setLogo(projectsDto.getString("logo"));
-        projects.setMenuMode(projectsDto.getString("menu_mode"));
-        projects.setMenuThemeColor(projectsDto.getString("menu_theme_color"));
-        projects.setName(projectsDto.getString("name"));
-        projects.setRemark(projectsDto.getString("remark"));
-        projects.setSystemThemeColor(projectsDto.getString("system_theme_color"));
-        projects.setTag(projectsDto.getBoolean("tag") ? 1 : 0);
         return getUpdateResponse(projectsService.save(projects), "项目创建失败");
     }
 
     /**
      * 获取页面列表
      *
-     * @param response
-     * @param page_id
+     * @param request  HTTP 请求对象
+     * @param response HTTP 响应对象
+     * @param page_id  页面 ID
+     * @return 页面列表响应
      */
     @GetMapping("/detail/{page_id}")
-    public ResultResponse detail(HttpServletRequest request, HttpServletResponse response, @PathVariable("page_id") Long page_id) {
+    @Operation(summary = "获取页面列表")
+    public ResultResponse detail(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @Parameter(description = "页面 ID") @PathVariable("page_id") Long page_id) {
         return getResponse(projectsService.getById(page_id));
     }
 
     /**
      * 更新项目
      *
-     * @param response
-     * @param projects
+     * @param response  HTTP 响应对象
+     * @param projects  项目对象
+     * @return 更新项目响应
      */
     @PostMapping("update")
-    public ResultResponse update(HttpServletResponse response, @RequestBody Projects projects) {
+    @Operation(summary = "更新项目")
+    public ResultResponse update(
+            HttpServletResponse response,
+            @Parameter(description = "项目对象") @RequestBody Projects projects) {
         projects.setUpdatedAt(new Date());
         return getUpdateResponse(projectsService.updateById(projects), "保存失败");
     }
@@ -136,10 +150,13 @@ public class ProjectController extends BasicController {
     /**
      * 删除项目
      *
-     * @param projects
+     * @param projects 项目对象
+     * @return 删除项目响应
      */
     @PostMapping("delete")
-    public ResultResponse delete(@RequestBody Projects projects) {
+    @Operation(summary = "删除项目")
+    public ResultResponse delete(
+            @Parameter(description = "项目对象") @RequestBody Projects projects) {
         return getUpdateResponse(projectsService.removeById(projects.getId()), "删除失败");
     }
 }

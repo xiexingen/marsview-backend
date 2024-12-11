@@ -14,6 +14,10 @@ import com.marsview.util.HtmlUtil;
 import com.marsview.mapper.ProjectUserMapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +30,7 @@ import java.util.Map;
  * @author yangshare simayifeng@gmail.com
  * createTime: 2024/9/29 07:59
  */
+@Tag(name = "项目用户管理")
 @RestController
 @RequestMapping("api/project/user")
 public class ProjectUserController extends BasicController {
@@ -33,14 +38,9 @@ public class ProjectUserController extends BasicController {
     @Autowired
     private ProjectUserService projectUserService;
 
-    /**
-     * 创建项目用户
-     *
-     * @param response
-     * @param projectUser
-     */
+    @Operation(summary = "创建项目用户")
     @PostMapping("create")
-    public ResultResponse create(HttpServletResponse response, @RequestBody ProjectUser projectUser) {
+    public ResultResponse create(HttpServletResponse response, @Parameter(description = "项目用户信息") @RequestBody ProjectUser projectUser) {
         QueryWrapper<ProjectUser> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("project_id", projectUser.getProjectId());
         queryWrapper.eq("user_id", projectUser.getUserId());
@@ -52,19 +52,19 @@ public class ProjectUserController extends BasicController {
         }
     }
 
-    /**
-     * 获取用户列表
-     *
-     * @param response
-     * @param project_id
-     * @param pageNum
-     * @param pageSize
-     */
+    @Operation(summary = "获取用户列表")
     @GetMapping("list")
-    public ResultResponse detail(HttpServletResponse response, Long project_id, int pageNum, int pageSize) {
+    public ResultResponse detail(HttpServletResponse response,
+                                 @Parameter(description = "项目ID") Long projectId,
+                                 @Parameter(description = "页码") int pageNum,
+                                 @Parameter(description = "项目ID") String userName,
+                                 @Parameter(description = "每页大小") int pageSize) {
 
         QueryWrapper<ProjectUser> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("project_id", project_id);
+        queryWrapper.eq("project_id", projectId);
+        if (StringUtils.isNotBlank(userName)) {
+            queryWrapper.like("user_name", userName);
+        }
 
         Page<ProjectUser> page = new Page<>(pageNum, pageSize);
         IPage<ProjectUser> pageInfo = projectUserService.page(page, queryWrapper);
@@ -75,4 +75,17 @@ public class ProjectUserController extends BasicController {
                         "total", pageInfo.getTotal())
         ).build();
     }
+
+    @Operation(summary = "创建项目用户")
+    @PostMapping("update")
+    public ResultResponse update(HttpServletResponse response, @Parameter(description = "项目用户信息") @RequestBody ProjectUser projectUser) {
+        return getUpdateResponse(projectUserService.updateById(projectUser), "新增失败");
+    }
+
+    @Operation(summary = "删除项目用户")
+    @PostMapping("delete")
+    public ResultResponse delete(HttpServletResponse response, @Parameter(description = "项目用户信息") @RequestBody ProjectUser projectUser) {
+        return getUpdateResponse(projectUserService.removeById(projectUser.getId()), "删除失败");
+    }
+
 }

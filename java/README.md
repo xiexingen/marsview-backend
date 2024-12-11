@@ -47,6 +47,22 @@ spring:
 
 # 三、云存储
 ## 配置
+- `pom.xml`
+```xml
+<dependency>
+    <groupId>io.github.yangshare</groupId>
+    <artifactId>simpleFS</artifactId>
+    <version>1.0.6</version>
+    <scope>system</scope>
+    <systemPath>${project.basedir}/lib/simpleFS-1.0.6.jar</systemPath>
+</dependency>
+<!--这里以七牛云oss为例，其他云存储类似-->
+<dependency>
+     <groupId>com.qiniu</groupId>
+      <artifactId>qiniu-java-sdk</artifactId>
+      <version>7.17.0</version>
+</dependency>
+```
 - `application-oss.yml`
 ```yaml
 simple-fs:
@@ -110,7 +126,7 @@ simple-fs:
     region: AWS地域
     domain-url: AWS访问地址
 ```
-
+> 用到哪家oss就配置哪家即可，代码怎么判断的看下面【开发】章节。
 
 ## 开发
 > [参考文档](https://github.com/yangshare/simpleFS)
@@ -218,7 +234,51 @@ public class OssTemplateTest {
 }
 
 ```
-
+# 部署
+> 部署方式二选一：tomcat、docker
+## tomcat
+1. 准备工作
+- 安装 JDK：确保已安装 JDK，并配置好环境变量。
+- 安装 Tomcat：下载并解压 Tomcat 到指定目录。
+2. 修改 Spring Boot 项目pom.xml文件
+```xml
+<packaging>war</packaging> <!-- 修改这里为 war -->
+```
+3. 打包项目
+- 打包成 WAR 文件：在项目根目录下运行以下命令。
+```shell
+mvn clean package
+```
+- 找到 WAR 文件：打包完成后，WAR 文件会生成在 target 目录下。
+4. 部署到 Tomcat
+- 将 WAR 文件复制到 Tomcat 的 webapps 目录：
+```shell
+cp target/your-app.war /path/to/tomcat/webapps/
+```
+- 启动 Tomcat：
+```shell
+tomcat安装目录/bin/startup.sh
+```
+5. 访问应用
+- 打开浏览器，访问 http://localhost:9001/
+## docker
+1. 构建 Docker 镜像
+- 在包含 Dockerfile 的目录下执行以下命令构建 Docker 镜像：
+```sh
+git clone https://github.com/JackySoft/marsview-backend.git
+cd marsview-backend/java
+docker build -t marsview4j:latest	
+```
+2. 运行 Docker 容器
+- 使用以下命令启动 Docker 容器，并挂载配置文件目录：
+```sh
+docker run -d -p 9001:9001 -v /宿主机路径/conf:/app/conf marsview4j:latest
+``` 
+- -d 表示后台运行。
+- -p 9001:9001 将容器的 9001 端口映射到宿主机的 9001 端口。
+- -v /宿主机路径/conf:/app/conf 将宿主机的配置文件目录挂载到容器的 /app/conf 目录。
+3. 访问应用
+- 打开浏览器，访问 http://localhost:9001/
 # 贡献
 
  > 欢迎大家贡献代码，提交PR。
@@ -226,7 +286,7 @@ public class OssTemplateTest {
 ## 代码规范
 只有两条规则
 - 代码尽量生成器，不要手写。[代码生成](https://baomidou.com/guides/mybatis-x/#%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90)
-- 手写代码请遵照[《阿里巴巴Java开发手册（终极版）》](https://developer.aliyun.com/ebook/386/read)
+- 手写代码请遵照[《阿里巴巴Java开发手册（终极版）》](https://developer.aliyun.com/ebook/386/read)，接口添加文档注解[Knife4j](https://doc.xiaominfo.com/)
 
 ## pr规范
 不用研究pr规范（发起pr自然就有模板），提交pr之前先fork项目，然后在自己的仓库里`Open a pull request`

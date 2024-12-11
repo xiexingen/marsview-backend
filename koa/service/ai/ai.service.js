@@ -39,7 +39,7 @@ class AiService {
               onDateChange && onDateChange(date, dateString, dateFormat);
             };
             const onFinish = (values) => {
-              onClick?.(values);
+              onClick && onClick(values);
             };
             return (
               <div data-id={id} data-type={type}>
@@ -280,9 +280,9 @@ class AiService {
         aiStream = aiRunnable.stream(
           {
             input: `
-                          continue, please do not reply with any text other than the code, and do not use markdown syntax.
-                          go continue.
-                      `,
+                    continue, please do not reply with any text other than the code, and do not use markdown syntax.
+                    go continue.
+                  `,
           },
           aiRunnableConfig,
         );
@@ -300,7 +300,6 @@ class AiService {
     }
     const ai_stream_string = result.join('');
     const code_array = extractCodeBlocks(ai_stream_string);
-    console.log(code_array);
     // 解析生成的代码
 
     return [code_array[0], code_array[1]];
