@@ -284,3 +284,6 @@ CREATE TABLE `workflows` (
   KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb3 COMMENT='工作流模板配置'
 ;
+
+
+INSERT INTO `users` VALUES (1, 'admin@qq.com', 'Abcd1234', 1, '2024-11-13 03:30:07', '2024-11-13 03:30:07');
