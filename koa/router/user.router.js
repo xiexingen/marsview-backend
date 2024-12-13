@@ -38,6 +38,7 @@ router.get('/info', async (ctx) => {
   util.success(ctx, {
     userId,
     userName,
+    nickName: userName.split('@')[0],
   });
 });
 
@@ -82,6 +83,7 @@ router.post('/sendEmail', async (ctx) => {
       },
     });
 
+
     const random = Math.random().toString().slice(2, 7);
 
     let mailOptions = {
@@ -113,14 +115,16 @@ router.post('/regist', async (ctx) => {
     util.fail(ctx, '邮箱验证码不能为空');
     return;
   }
-  const val = await keyv.get(userName);
-  if (!val) {
-    util.fail(ctx, '验证码已过期');
-    return;
-  }
-  if (val != code) {
-    util.fail(ctx, '验证码错误');
-    return;
+  if (config.EMAIL_USER) {
+    const val = await keyv.get(userName);
+    if (!val) {
+      util.fail(ctx, '验证码已过期');
+      return;
+    }
+    if (val != code) {
+      util.fail(ctx, '验证码错误');
+      return;
+    }
   }
   const user = await userService.search(userName);
   if (user) {

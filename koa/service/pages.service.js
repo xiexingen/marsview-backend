@@ -2,15 +2,15 @@ const connection = require('../sql');
 class PagesService {
   async listCount(keyword, type, userId) {
     const statement = `
-      SELECT 
+      SELECT
           count(p.id) as total
-      FROM 
+      FROM
         pages p
-      LEFT JOIN   
-        (select * from pages_role WHERE user_id= ?) pr ON p.id = pr.page_id AND pr.type = 2 
-      WHERE 
+      LEFT JOIN
+        (select * from pages_role WHERE user_id= ?) pr ON p.id = pr.page_id AND pr.type = 2
+      WHERE
         (
-          (name like COALESCE(CONCAT('%',?,'%'), name) OR ? IS NULL) 
+          (name like COALESCE(CONCAT('%',?,'%'), name) OR ? IS NULL)
           AND p.user_id ${type == 1 ? '=' : '!='} ?
         ) OR pr.page_id IS NOT NULL
     `;
@@ -21,7 +21,7 @@ class PagesService {
     const offset = (+pageNum - 1) * pageSize + '';
     const limit = pageSize;
     const statement = `
-      SELECT 
+      SELECT
         p.id,
         p.name,
         p.user_id as userId,
@@ -38,16 +38,16 @@ class PagesService {
         p.project_id as projectId,
         p.updated_at as updatedAt,
         SUBSTRING_INDEX(p.user_name, '@', 1) as userName
-      FROM 
+      FROM
         pages p
-      LEFT JOIN   
-        (select * from pages_role WHERE user_id= ?) pr ON p.id = pr.page_id AND pr.type = 2 
-      WHERE 
+      LEFT JOIN
+        (select * from pages_role WHERE user_id= ?) pr ON p.id = pr.page_id AND pr.type = 2
+      WHERE
         (
-          (name like COALESCE(CONCAT('%',?,'%'), name) OR ? IS NULL) 
+          (name like COALESCE(CONCAT('%',?,'%'), name) OR ? IS NULL)
           AND p.user_id ${type == 1 ? '=' : '!='} ?
         ) OR pr.page_id IS NOT NULL
-      ORDER BY 
+      ORDER BY
         p.updated_at DESC LIMIT ${offset},${limit};`;
     const [result] = await connection.execute(statement, [userId, keyword || null, keyword || null, userId]);
     return result;
@@ -64,7 +64,7 @@ class PagesService {
   async listPageTemplate(pageNum, pageSize, keyword) {
     const offset = (+pageNum - 1) * pageSize + '';
     const statement = `
-    SELECT 
+    SELECT
       id,
       name,
       user_id as userId,
@@ -76,14 +76,14 @@ class PagesService {
       stg_state as stgState,
       project_id as projectId,
       updated_at as updatedAt,
-      SUBSTRING_INDEX(user_name, '@', 1) as userName 
-    FROM 
-      pages 
-    WHERE 
-      (name like COALESCE(CONCAT('%',?,'%'), name) OR ? IS NULL) 
-    AND 
-      is_public = 3 
-    ORDER BY 
+      SUBSTRING_INDEX(user_name, '@', 1) as userName
+    FROM
+      pages
+    WHERE
+      (name like COALESCE(CONCAT('%',?,'%'), name) OR ? IS NULL)
+    AND
+      is_public = 3
+    ORDER BY
       updated_at DESC LIMIT ?,?;`;
     const [result] = await connection.execute(statement, [keyword || null, keyword || null, offset, pageSize]);
     return result;
@@ -91,7 +91,7 @@ class PagesService {
 
   async getPageInfoById(id) {
     const statement = `
-    SELECT 
+    SELECT
       id,
       name,
       user_id as userId,
@@ -109,9 +109,9 @@ class PagesService {
       prd_state as prdState,
       project_id as projectId,
       updated_at as updatedAt,
-      SUBSTRING_INDEX(user_name, '@', 1) as userName 
-    FROM 
-      pages 
+      SUBSTRING_INDEX(user_name, '@', 1) as userName
+    FROM
+      pages
     WHERE id = ?;
     `;
     const [result] = await connection.execute(statement, [id]);
@@ -138,24 +138,19 @@ class PagesService {
   }
 
   //state=> 1: 未保存 2: 已保存 3: 已发布 4: 已回滚
-  async updatePageInfo(name, remark, pageData, isPublic, isEdit, id, previewImg) {
-    let statement = `UPDATE pages SET stg_state=2, pre_state=2, prd_state=2, name = ?, remark = ?, is_public = ?, is_edit = ?`;
-    let sql_params = [name, remark, isPublic, isEdit];
-
-    if (previewImg) {
-      statement += `, preview_img = ?`;
-      sql_params.push(previewImg);
+  async updatePageInfo(id,name, projectId,remark, pageData) {
+    let statement = `UPDATE pages SET name = ?, remark = ?, project_id = ?`;
+    let sql_params = [name, remark, projectId];
+    if(!name){
+      statement = `UPDATE pages SET page_data = ?`;
+      sql_params = [pageData];
     }
-    if (pageData) {
-      statement += `, page_data = ?`;
-      sql_params.push(pageData);
-    }
-
     statement += ` WHERE id = ?;`;
     sql_params.push(id);
     const [result] = await connection.execute(statement, sql_params);
     return result;
   }
+
 
   //state=> 1: 未保存 2: 已保存 3: 已发布 4: 已回滚
   async updatePageState(lastPublishId, id, env, previewImg) {

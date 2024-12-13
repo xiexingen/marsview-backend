@@ -23,8 +23,8 @@ class UserService {
   // 更新用户
   async updateLoginTime(id, nickName) {
     const date = new Date();
-    const statement = 'UPDATE users SET updated_at = ?, nick_name = ? WHERE id = ?;';
-    const [result] = await connection.execute(statement, [date, nickName, id]);
+    const statement = 'UPDATE users SET updated_at = ? WHERE id = ?;';
+    const [result] = await connection.execute(statement, [date, id]);
     return result;
   }
 }

@@ -283,5 +283,4 @@ CREATE TABLE `workflows` (
 ) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8mb3 COMMENT='工作流模板配置'
 ;
 
-
-INSERT INTO `users` VALUES (1, 'admin@qq.com', 'Abcd1234', 1, '2024-11-13 03:30:07', '2024-11-13 03:30:07');
+INSERT INTO `marsview`.`users` (`nick_name`, `user_name`, `user_pwd`) VALUES ('admin', 'admin@qq.com', 'Abcd1234')

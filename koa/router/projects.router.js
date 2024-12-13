@@ -7,7 +7,7 @@ const projectsController = require('../controller/projects.controller');
  */
 
 // 获取项目列表
-router.get('/list', projectsController.list);
+router.get('/category', projectsController.list);
 
 // 创建项目
 router.post('/create', projectsController.create);
@@ -20,5 +20,7 @@ router.post('/update', projectsController.update);
 
 // 获取项目详情
 router.get('/detail/:id', projectsController.detail);
+// 获取项目详情
+router.post('/checkAuth', projectsController.checkAuth);
 
 module.exports = router;

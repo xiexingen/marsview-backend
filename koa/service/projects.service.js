@@ -3,13 +3,13 @@ class ProjectsService {
   async listCount(keyword, type, userId) {
     const statement =
       `
-      SELECT   
+      SELECT
         count(p.id) as total
-      FROM 
-        projects p  
-      LEFT JOIN   
-        (select * from pages_role WHERE user_id= ?) pr ON p.id = pr.page_id AND pr.type = 1 
-      WHERE 
+      FROM
+        projects p
+      LEFT JOIN
+        (select * from pages_role WHERE user_id= ?) pr ON p.id = pr.page_id AND pr.type = 1
+      WHERE
         ((name like COALESCE(CONCAT('%',?,'%'), name) OR ? IS NULL) AND ` +
       (type == 1 ? 'p.user_id = ?' : 'p.user_id != ?') +
       `
@@ -23,7 +23,8 @@ class ProjectsService {
     const limit = pageSize;
     const statement =
       `
-      SELECT   
+      SELECT
+
         p.id,
         p.name,
         p.updated_at as updatedAt,
@@ -32,12 +33,13 @@ class ProjectsService {
         p.user_name as userName,
         p.user_id as userId,
         p.is_public as isPublic,
-        SUBSTRING_INDEX(p.user_name, '@', 1) as userName
-      FROM 
-        projects p  
-      LEFT JOIN   
-        (select * from pages_role WHERE user_id= ?) pr ON p.id = pr.page_id AND pr.type = 1 
-      WHERE 
+        SUBSTRING_INDEX(p.user_name, '@', 1) as userName,
+        (SELECT COUNT(1) FROM pages WHERE project_id = p.id) AS count
+      FROM
+        projects p
+      LEFT JOIN
+        (select * from pages_role WHERE user_id= ?) pr ON p.id = pr.page_id AND pr.type = 1
+      WHERE
         ((name like COALESCE(CONCAT('%',?,'%'), name) OR ? IS NULL) AND ` +
       (type == 1 ? 'p.user_id = ?' : 'p.user_id != ?') +
       `

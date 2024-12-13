@@ -101,13 +101,10 @@ module.exports = {
   },
 
   async update(ctx) {
-    const { id, name, remark = '', pageData, isPublic = 1, isEdit = 1, previewImg = '' } = ctx.request.body;
+    const { id, name, remark = '', pageData, isPublic = 1, isEdit = 1, projectId, } = ctx.request.body;
+
     if (!util.isNotEmpty(id)) {
       return ctx.throw(400, '页面ID不能为空');
-    }
-
-    if (!name) {
-      return ctx.throw(400, '页面名称不能为空');
     }
     const { userId } = util.decodeToken(ctx);
     const [pageInfo] = await pageService.getPageSimpleById(+id);
@@ -122,7 +119,7 @@ module.exports = {
     if (pageInfo.isPublic === 3 && pageInfo.userId !== userId) {
       return util.fail(ctx, '您当前暂无编辑权限');
     }
-    await pageService.updatePageInfo(name, remark, pageData, isPublic, isEdit, id, previewImg);
+    await pageService.updatePageInfo(id, name, projectId, remark, pageData);
     util.success(ctx);
   },
 

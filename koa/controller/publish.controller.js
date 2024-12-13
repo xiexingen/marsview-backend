@@ -15,13 +15,13 @@ module.exports = {
   },
 
   async create(ctx) {
-    const { pageId, env, previewImg } = ctx.request.body;
+    const { id, env, previewImg } = ctx.request.body;
 
-    if (!util.isNotEmpty(pageId)) {
+    if (!util.isNotEmpty(id)) {
       return ctx.throw(400, '页面ID不能为空');
     }
 
-    if (!util.isNumber(pageId)) {
+    if (!util.isNumber(id)) {
       return ctx.throw(400, '页面ID参数错误');
     }
 
@@ -31,13 +31,13 @@ module.exports = {
 
     const { userId, userName } = util.decodeToken(ctx);
 
-    const [pageInfo] = await pagesService.getPageInfoById(+pageId);
+    const [pageInfo] = await pagesService.getPageInfoById(+id);
     if (!pageInfo || !pageInfo.pageData) {
       return ctx.throw(400, '页面不存在或页面数据为空');
     }
-    const result = await publishService.createPublish(pageId, pageInfo.name, pageInfo.pageData, userName, userId, env);
+    const result = await publishService.createPublish(id, pageInfo.name, pageInfo.pageData, userName, userId, env);
 
-    await pagesService.updatePageState(result.insertId, pageId, env, previewImg);
+    await pagesService.updatePageState(result.insertId, id, env, previewImg);
 
     util.success(ctx);
   },

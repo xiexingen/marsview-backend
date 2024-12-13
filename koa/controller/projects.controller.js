@@ -1,4 +1,5 @@
 const projectsService = require('../service/projects.service');
+const projectUserService = require('../service/project.user.service');
 const pagesRoleService = require('../service/pagesRole.service');
 const menuService = require('../service/menu.service');
 const util = require('../utils/util');
@@ -98,5 +99,25 @@ module.exports = {
       return ctx.throw(400, '项目不存在');
     }
     util.success(ctx, projectInfo);
+  },
+  async checkAuth(ctx) {
+    const params = ctx.request.body;
+    const id = params.id;
+
+    const { userId, userName } = util.decodeToken(ctx);
+    if (!util.isNumber(id)) {
+      return ctx.throw(400, 'id参数不正确');
+    }
+    const [projectInfo] = await projectsService.getProjectInfoById(+id);
+    if (!projectInfo) {
+      return ctx.throw(400, '项目不存在');
+    }
+    if (projectInfo.userId != userId) {
+      const projectUserCount = await projectUserService.listCount(id, userName);
+      if (projectUserCount === 0) {
+        return ctx.throw(403, '您暂无权限');
+      }
+    }
+    util.success(ctx, "");
   },
 };

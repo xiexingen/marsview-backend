@@ -26,13 +26,19 @@ const JWT_SECRET = 'marsview';
 const JWT_EXPIRES_IN = '7d';
 
 /**
- * 百度云OSS配置
+ * 百度云OSS配置 - 传入Bucket所在区域域名
  */
-const OSS_ENDPOINT = '';
+const OSS_ENDPOINT = 'xxg-marsview';
 const OSS_BUCKET1 = '';
 const OSS_BUCKET2 = '';
-const OSS_ACCESSKEY = '';
-const OSS_ACCESSKEYSECRET = '';
+/**
+ * 百度云OSS配置 - AccessKey
+ */
+const OSS_ACCESSKEY = '00ea65b2ce2a490098dc431a8730a017';
+/**
+ * 百度云OSS配置 - SecretAccessKey
+ */
+const OSS_ACCESSKEYSECRET = 'b1c8ac0f107c4db7aa31700eaf2f8ba0';
 const OSS_CDNDOMAIN1 = '';
 const OSS_CDNDOMAIN2 = '';
 
