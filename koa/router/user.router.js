@@ -22,7 +22,7 @@ router.post('/login', async (ctx) => {
   }
   const nickName = userName.split('@')[0];
   const token = util.createToken({ userName, userId: res.id });
-  userService.updateLoginTime(res.id, nickName);
+  userService.updateLoginTime(res.id);
   util.success(ctx, {
     userId: res.id,
     userName,

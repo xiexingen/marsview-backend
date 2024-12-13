@@ -21,7 +21,7 @@ class UserService {
     return result[0];
   }
   // 更新用户
-  async updateLoginTime(id, nickName) {
+  async updateLoginTime(id) {
     const date = new Date();
     const statement = 'UPDATE users SET updated_at = ? WHERE id = ?;';
     const [result] = await connection.execute(statement, [date, id]);

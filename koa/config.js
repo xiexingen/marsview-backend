@@ -26,11 +26,18 @@ const JWT_SECRET = 'marsview';
 const JWT_EXPIRES_IN = '7d';
 
 /**
- * 百度云OSS配置 - 传入Bucket所在区域域名
+ * 百度云OSS配置 - 专属域名，会根据你的 bucket生成域名
  */
-const OSS_ENDPOINT = 'xxg-marsview';
-const OSS_BUCKET1 = '';
-const OSS_BUCKET2 = '';
+const OSS_ENDPOINT = 'https://xxg-marsview.bj.bcebos.com';
+/**
+ * 百度云OSS配置 - 传入Bucket所在区域域名,需要自己创建并拷贝名称
+ */
+const OSS_BUCKET1 = 'xxg-marsview';
+
+/**
+ * 百度云OSS配置 - 传入Bucket所在区域域名,需要自己创建并拷贝名称
+ */
+const OSS_BUCKET2 = 'xxg-marsvie2';
 /**
  * 百度云OSS配置 - AccessKey
  */
@@ -39,8 +46,12 @@ const OSS_ACCESSKEY = '00ea65b2ce2a490098dc431a8730a017';
  * 百度云OSS配置 - SecretAccessKey
  */
 const OSS_ACCESSKEYSECRET = 'b1c8ac0f107c4db7aa31700eaf2f8ba0';
-const OSS_CDNDOMAIN1 = '';
-const OSS_CDNDOMAIN2 = '';
+
+/**
+ * 百度云OSS配置 - 对应OSS_BUCKET1的访问域名地址
+ */
+const OSS_CDNDOMAIN1 = 'https://xxg-marsview.bj.bcebos.com';
+const OSS_CDNDOMAIN2 = 'https://xxg-marsview2.bj.bcebos.com';
 
 /**
  * 邮箱服务配置

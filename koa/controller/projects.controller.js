@@ -1,8 +1,10 @@
 const projectsService = require('../service/projects.service');
 const projectUserService = require('../service/project.user.service');
+const publishService = require('../service/publish.service');
 const pagesRoleService = require('../service/pagesRole.service');
 const menuService = require('../service/menu.service');
 const util = require('../utils/util');
+const pagesService = require('../service/pages.service');
 
 module.exports = {
   async list(ctx) {
@@ -119,5 +121,22 @@ module.exports = {
       }
     }
     util.success(ctx, "");
+  },
+  async oneClickPublishing(ctx) {
+    const params = ctx.request.body;
+    const { userId, userName } = util.decodeToken(ctx);
+    const { id } = params;
+    const pages = await pagesService.listByProjectId(id);
+    if (Array.isArray(pages) && pages.length > 0) {
+      const env = 'stg';
+      for (const pageInfo of pages) {
+        const result = await publishService.createPublish(pageInfo.id, pageInfo.name, pageInfo.pageData, userName, userId, env);
+        await pagesService.updatePageState(result.insertId, id, env, pageInfo.previewImg);
+      }
+    }
+    else {
+      return ctx.throw(400, '项目logo不能为空');
+    }
+    util.success(ctx, "发布成功");
   },
 };

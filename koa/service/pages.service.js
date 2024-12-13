@@ -60,6 +60,32 @@ class PagesService {
     return result[0];
   }
 
+  // 查询页面模板总条数
+  async listByProjectId(projectId) {
+    const statement = `
+      SELECT
+      id,
+      name,
+      user_id as userId,
+      user_name as userName,
+      remark,
+      is_public as isPublic,
+      is_edit as isEdit,
+      preview_img as previewImg,
+      page_data as pageData,
+      stg_publish_id as stgPublishId,
+      pre_publish_id as prePublishId,
+      prd_publish_id as prdPublishId,
+      stg_state as stgState,
+      pre_state as preState,
+      prd_state as prdState,
+      project_id as projectId,
+      updated_at as updatedAt,
+      SUBSTRING_INDEX(user_name, '@', 1) as userName FROM pages WHERE project_id = ?;
+    `;
+    return await connection.execute(statement, [projectId]);
+  }
+
   // 查询页面模板
   async listPageTemplate(pageNum, pageSize, keyword) {
     const offset = (+pageNum - 1) * pageSize + '';
@@ -138,10 +164,10 @@ class PagesService {
   }
 
   //state=> 1: 未保存 2: 已保存 3: 已发布 4: 已回滚
-  async updatePageInfo(id,name, projectId,remark, pageData) {
+  async updatePageInfo(id, name, projectId, remark, pageData) {
     let statement = `UPDATE pages SET name = ?, remark = ?, project_id = ?`;
     let sql_params = [name, remark, projectId];
-    if(!name){
+    if (!projectId) {
       statement = `UPDATE pages SET page_data = ?`;
       sql_params = [pageData];
     }
